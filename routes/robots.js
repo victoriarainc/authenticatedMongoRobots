@@ -2,6 +2,17 @@ const express = require('express');
 const routes = express.Router();
 const db = require('../db');
 
+// require the login
+const requireLogin = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
+
+routes.use(requireLogin);
+
 routes.get('/', (req, res) => {
   let coll = db.get().collection('robots');
 

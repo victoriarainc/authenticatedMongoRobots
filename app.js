@@ -10,6 +10,8 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const flash = require('express-flash-messages');
+const Robot = require('./models/robot');
+const bodyParser = require('body-parser');
 
 //BOILERPLATE
 
@@ -17,7 +19,7 @@ const flash = require('express-flash-messages');
 passport.use(
   new LocalStrategy(function(username, password, done) {
     console.log('LocalStrategy', username, password);
-    User.authenticate(username, password)
+    Robot.authenticate(username, password)
       // success!!
       .then(user => {
         if (user) {
@@ -32,14 +34,20 @@ passport.use(
 );
 
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
+    done(null, user);
+    //done(null, user.username);
 });
 
-passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-        done(err, user);
-    });
+passport.deserializeUser(function(user, done) {
+    done(null, user);
+    // Robot.findById(id, function(err, user) {
+    //     done(err, user);
+    // });
 });
+
+//tell express to use the bodyParser middleware to parse form data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //for handlebars-express
 app.engine('handlebars', handlebars());
@@ -67,18 +75,18 @@ app.use(flash());
 
 //ROUTES
 
-// require the login
-const requireLogin = (req, res, next) => {
-  if (req.user) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
-};
+// // require the login
+// const requireLogin = (req, res, next) => {
+//   if (req.user) {
+//     next();
+//   } else {
+//     res.redirect('/login');
+//   }
+// };
 
-app.get('/', requireLogin, (req, res) => {
-  res.render('home', { user: req.user });
-});
+// app.get('/', requireLogin, (req, res) => {
+//   res.render('home', { user: req.user });
+// });
 
 // local login form
 app.get('/login', (req, res) => {
@@ -100,11 +108,11 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  let user = new User(req.body);
-  user.provider = 'local';
-  user.setPassword(req.body.password);
+  let robot = new Robot(req.body);
+  robot.provider = 'local';
+  robot.setPassword(req.body.password);
 
-  user
+  robot
     .save()
     // if good...
     .then(() => res.redirect('/'))
@@ -118,7 +126,7 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-// app.use('/', robotRoutes);
+app.use('/', robotRoutes);
 //
 // app.get('/login/', function(req, res) {
 //     res.render("login", {
@@ -134,11 +142,14 @@ app.get('/logout', function(req, res) {
 
 //APP
 db.connect(url, (err, connection) => {
-  if (!err)
+  if (!err) {
     console.log('connected to mongo');
-
+  }
   //LISTEN
-  app.listen(3000, function() {
-    console.log('You started the application!');
-  })
-})
+  mongoose.connect(url, { useMongoClient: true })
+  .then(() => {
+    app.listen(3000, function() {
+      console.log('You started the application!');
+    });
+  });
+});
