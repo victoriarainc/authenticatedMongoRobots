@@ -1,7 +1,6 @@
 //PACKAGES
 const express = require('express');
 const app = express();
-const db = require('./db');
 let url = 'mongodb://localhost:27017/robots';
 const handlebars = require('express-handlebars');
 const robotRoutes = require('./routes/robots');
@@ -40,9 +39,6 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(user, done) {
     done(null, user);
-    // Robot.findById(id, function(err, user) {
-    //     done(err, user);
-    // });
 });
 
 //tell express to use the bodyParser middleware to parse form data
@@ -120,36 +116,12 @@ app.post('/register', (req, res) => {
     .catch(err => console.log(err));
 });
 
-// log out!!!!!
-app.get('/logout', function(req, res) {
-  req.logout();
-  res.redirect('/');
-});
-
 app.use('/', robotRoutes);
-//
-// app.get('/login/', function(req, res) {
-//     res.render("login", {
-//         messages: res.locals.getMessages()
-//     });
-// });
-//
-// app.post('/login/', passport.authenticate('local', {
-//     successRedirect: '/',
-//     failureRedirect: '/login/',
-//     failureFlash: true
-// }))
 
-//APP
-db.connect(url, (err, connection) => {
-  if (!err) {
-    console.log('connected to mongo');
-  }
-  //LISTEN
-  mongoose.connect(url, { useMongoClient: true })
-  .then(() => {
-    app.listen(3000, function() {
-      console.log('You started the application!');
-    });
+//LISTEN
+mongoose.connect(url, { useMongoClient: true })
+.then(() => {
+  app.listen(3000, function() {
+    console.log('You started the application!');
   });
 });
