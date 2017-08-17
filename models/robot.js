@@ -30,8 +30,6 @@ const robotSchema = new Schema({
   passwordHash: {type: String}
 });
 
-// userSchema.plugin(findOrCreate);
-
 robotSchema.methods.setPassword = function(password) {
   this.passwordHash = bcrypt.hashSync(password, 8);
 };
@@ -54,7 +52,6 @@ robotSchema.statics.authenticate = function(email, password) {
         }
       })
   );
-  //.then(user => console.log('matched user: ', user));
 };
 
 // create a model for a User

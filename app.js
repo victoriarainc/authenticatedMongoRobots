@@ -71,19 +71,6 @@ app.use(flash());
 
 //ROUTES
 
-// // require the login
-// const requireLogin = (req, res, next) => {
-//   if (req.user) {
-//     next();
-//   } else {
-//     res.redirect('/login');
-//   }
-// };
-
-// app.get('/', requireLogin, (req, res) => {
-//   res.render('home', { user: req.user });
-// });
-
 // local login form
 app.get('/login', (req, res) => {
   res.render('loginForm', { failed: req.query.failed });
